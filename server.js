@@ -148,6 +148,44 @@ app.post('/api/photos/:id/share', auth, async (req, res) => {
   res.json(photo);
 });
 
+// Update a memory (Owner only)
+app.put('/api/photos/:id', auth, async (req, res) => {
+  try {
+    // Only allow updates if the user is the uploader
+    const photo = await Photo.findOne({ _id: req.params.id, uploaderId: req.user.id });
+    if (!photo) return res.status(404).json({ error: 'Photo not found or unauthorized to edit' });
+
+    // Update allowed fields
+    const { title, description, location, country, tags, travelStyle } = req.body;
+    if (title !== undefined) photo.title = title;
+    if (description !== undefined) photo.description = description;
+    if (location !== undefined) photo.location = location;
+    if (country !== undefined) photo.country = country;
+    if (tags !== undefined) photo.tags = tags;
+    if (travelStyle !== undefined) photo.travelStyle = travelStyle;
+
+    await photo.save();
+    res.json(photo);
+  } catch (err) {
+    console.error('Update error:', err);
+    res.status(500).json({ error: 'Failed to update memory' });
+  }
+});
+
+// Delete a memory (Owner only)
+app.delete('/api/photos/:id', auth, async (req, res) => {
+  try {
+    // Find and delete in one step, ensuring only the owner can delete
+    const photo = await Photo.findOneAndDelete({ _id: req.params.id, uploaderId: req.user.id });
+    if (!photo) return res.status(404).json({ error: 'Photo not found or unauthorized to delete' });
+    
+    res.json({ message: 'Memory deleted successfully', id: req.params.id });
+  } catch (err) {
+    console.error('Delete error:', err);
+    res.status(500).json({ error: 'Failed to delete memory' });
+  }
+});
+
 // JSON error handler
 app.use((err, req, res, next) => {
   res.status(err.name === 'ValidationError' ? 400 : 500).json({ error: err.message });
