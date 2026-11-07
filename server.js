@@ -83,9 +83,17 @@ app.get('/api/photos', auth, async (req, res) => {
 });
 
 app.post('/api/photos', auth, async (req, res) => {
-  const { title, description, photoData, tags } = req.body;
+  // 1. Extract the missing fields from req.body
+  const { title, description, photoData, tags, location, country, travelStyle } = req.body; 
+  
   const photo = await Photo.create({
-    title, description, photoData, tags,
+    title, 
+    description, 
+    photoData, 
+    tags,
+    location,      // 2. Tell MongoDB to save them
+    country,       // 2. Tell MongoDB to save them
+    travelStyle,   // 2. Tell MongoDB to save them
     uploadedBy: req.user.name,
     uploaderId: req.user.id
   });
