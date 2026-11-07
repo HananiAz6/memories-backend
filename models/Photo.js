@@ -14,10 +14,15 @@ const photoSchema = new mongoose.Schema({
   uploadedBy: { type: String, required: true },          // display name
   uploaderId: { type: String, required: true, index: true },
   tags: [{ type: String }],
+  
+  // Add the missing fields here:
+  location: { type: String, default: 'Somewhere on the road' },
+  country: { type: String, default: 'Global' },
+  travelStyle: { type: String, default: 'Slow Travel' },
+
   likedBy: [{ type: String }],                           // user ids
   sharedWith: { type: [String], index: true },           // user ids
   comments: [commentSchema],
   createdAt: { type: Date, default: Date.now }
 });
-
 module.exports = mongoose.model('Photo', photoSchema);
